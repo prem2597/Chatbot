@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat'; 
 import { Dialogflow_V2 } from 'react-native-dialogflow';
 import { dialogflowConfig } from './config';
+import Header from './components/header';
 
 const BOT_USER = {
   _id: 2,
@@ -13,6 +14,11 @@ const BOT_USER = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  headers: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
 })
 
@@ -74,6 +80,8 @@ class App extends Component {
       msg.image = payload.url;
     }
 
+    // msg.text = "hello"
+
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, [msg])
     }));
@@ -81,14 +89,17 @@ class App extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <GiftedChat 
-          messages = {this.state.messages}
-          onSend = {messages => this.onSend(messages)}
-          user={{
-            _id: 1
-          }}
-        />
+      <View style={styles.headers}>
+        <Header />
+        <View style={styles.container}>
+          <GiftedChat 
+            messages = {this.state.messages}
+            onSend = {messages => this.onSend(messages)}
+            user={{
+              _id: 1
+            }}
+          />
+        </View>
       </View>
     )
   }
