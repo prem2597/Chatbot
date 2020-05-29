@@ -10,6 +10,12 @@ const BOT_USER = {
   avatar: 'https://pngimage.net/wp-content/uploads/2018/05/bots-png-9.png'
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+})
+
 class App extends Component {
 
   state = {
@@ -34,18 +40,11 @@ class App extends Component {
 
   handleGoogleResponse(result) {
     console.log(result);
-    console.log("hi");
-    console.log("-------------------------");
-   
-    console.log(result.queryResult.outputContexts[0].parameters.date-time);
-    console.log("bye");
+       
+    let text = result.queryResult.fulfillmentMessages[0].text.text[0];
+    let payload = result.queryResult.webhookPayload;
     
-    let text = result.queryResult.outputContexts[0].parameters.date-time;
-    console.log("text");
-    console.log(text);
-    console.log("hi");
-    
-    this.sendBotResponse(text);
+    this.sendBotResponse(text, payload);
   }
 
 
@@ -62,12 +61,17 @@ class App extends Component {
     );
   }
 
-  sendBotResponse(text) {
+  sendBotResponse(text, payload) {
     let msg = {
       _id: this.state.messages.length + 1,
       text,
       createdAt: new Date(),
       user: BOT_USER
+    }
+
+    if (payload && payload.is_image) {
+      msg.text = text;
+      msg.image = payload.url;
     }
 
     this.setState(previousState => ({
@@ -77,7 +81,7 @@ class App extends Component {
 
   render() {
     return (
-      <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View style={styles.container}>
         <GiftedChat 
           messages = {this.state.messages}
           onSend = {messages => this.onSend(messages)}
