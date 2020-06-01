@@ -2,4 +2,6 @@ Chatbot/.env
 Chatbot/config.js
 node_modules/*
 Chatbot/service-account.json
+Chatbot/mailgun-config.js
+
 
