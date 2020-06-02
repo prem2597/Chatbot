@@ -44,6 +44,7 @@ class App extends Component {
   }
 
   handleGoogleResponse(result) {
+    global.buffer = result.queryResult.queryText
     let text = result.queryResult.fulfillmentMessages[0].text.text[0];
     let payload = result.queryResult.webhookPayload;
     this.sendBotResponse(text, payload);
@@ -75,8 +76,7 @@ class App extends Component {
     }
 
     if (msg.text === "I didn't get that. Can you say it again?" || msg.text === "I missed what you said. What was that?" || msg.text === "Sorry, could you say that again?" || msg.text === "Sorry, can you say that again?" || msg.text === "Can you say that again?" || msg.text === "Sorry, I didn't get that. Can you rephrase?" || msg.text === "Sorry, what was that?" || msg.text === "One more time?" || msg.text === "What was that?" || msg.text === "Say that one more time?" || msg.text === "I didn't get that. Can you repeat?" || msg.text === "I missed that, say that again?") {
-      console.log("hi");
-      var uri = "what";
+      var uri = global.buffer;
       this.text = encodeURIComponent(uri);
       this.url = 'https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=relevance&q='+this.text+'&accepted=True&site=stackoverflow'
       await fetch(this.url)
