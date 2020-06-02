@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, View, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { GiftedChat } from 'react-native-gifted-chat'; 
 import { Dialogflow_V2 } from 'react-native-dialogflow';
 import { dialogflowConfig } from './config';
 import Header from './components/header';
-import email from 'react-native-email';
 
 const BOT_USER = {
   _id: 2,
@@ -24,12 +23,11 @@ const styles = StyleSheet.create({
 })
 
 class App extends Component {
-
   state = {
     messages: [
       {
         _id: 1,
-        text: "Hi! I am the FAQ bot 🤖.\n\nHow may I help you with today?",
+        text: "👋 Hi! I am the FAQ bot 🤖.\n\nHow may I help you with today?",
         createdAt: new Date(),
         user: BOT_USER
       }
@@ -46,20 +44,15 @@ class App extends Component {
   }
 
   handleGoogleResponse(result) {
-    console.log(result);
-       
     let text = result.queryResult.fulfillmentMessages[0].text.text[0];
     let payload = result.queryResult.webhookPayload;
-    
     this.sendBotResponse(text, payload);
   }
-
 
   onSend(messages = []) {
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, messages)
     }));
-
     let message = messages[0].text;
     Dialogflow_V2.requestQuery(
       message,
@@ -68,7 +61,7 @@ class App extends Component {
     );
   }
 
-  sendBotResponse(text, payload) {
+  async sendBotResponse(text, payload) {
     let msg = {
       _id: this.state.messages.length + 1,
       text,
@@ -81,25 +74,24 @@ class App extends Component {
       msg.image = payload.url;
     }
 
-    console.log("-------------");
-    console.log(msg.text);
-    console.log("-------------");
-
-    if (msg.text == "I didn't get that. Can you say it again?" || "I missed what you said. What was that?" || "Sorry, could you say that again?" || "Sorry, can you say that again?" || "Can you say that again?" || "Sorry, I didn't get that. Can you rephrase?" || "Sorry, what was that?" || "One more time?" || "What was that?" || "Say that one more time?" || "I didn't get that. Can you repeat?" || "I missed that, say that again?") {
+    if (msg.text === "I didn't get that. Can you say it again?" || msg.text === "I missed what you said. What was that?" || msg.text === "Sorry, could you say that again?" || msg.text === "Sorry, can you say that again?" || msg.text === "Can you say that again?" || msg.text === "Sorry, I didn't get that. Can you rephrase?" || msg.text === "Sorry, what was that?" || msg.text === "One more time?" || msg.text === "What was that?" || msg.text === "Say that one more time?" || msg.text === "I didn't get that. Can you repeat?" || msg.text === "I missed that, say that again?") {
       console.log("hi");
-      console.log("-------------");
-      
+      var uri = "what";
+      this.text = encodeURIComponent(uri);
+      this.url = 'https://api.stackexchange.com/2.2/search/advanced?order=desc&sort=relevance&q='+this.text+'&accepted=True&site=stackoverflow'
+      await fetch(this.url)
+      .then((response) => response.json())
+      .then((responseJson) =>
+      {
+        if (responseJson.items[1].link) {
+          msg.text = "The query you are searching for is not updated in my database. I will intimate my master to update my data.\n\n But, refer to these two link where you may find a solution for your problem \n\n"+responseJson.items[0].link+"\n\n"+responseJson.items[1].link
+        } else {
+          msg.text = "The query you are searching for is not updated in my database. I will intimate my master to update my data.\n\n But, refer to this link where you may find a solution for your problem \n\n"+responseJson.items[0].link
+        }
+      })
+      .catch(() => {
+      });
     }
-
-    // msg.text = "hello"
-    
-    // if (msg.text == "I didn't get that. Can you say it again?" || "I missed what you said. What was that?" || "Sorry, could you say that again?" || "Sorry, can you say that again?" || "Can you say that again?" || "Sorry, I didn't get that. Can you rephrase?" || "Sorry, what was that?" || "One more time?" || "What was that?" || "Say that one more time?" || "I didn't get that. Can you repeat?" || "I missed that, say that again?") {
-    //   const to = ['prembammidi25@msitprogram.net']
-    //   email (to, {
-    //     subject: "I didn't find this query in my database",
-    //     body: "c-test",
-    //   }).catch(console.error)
-    // }
 
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, [msg])
@@ -108,18 +100,20 @@ class App extends Component {
 
   render() {
     return (
-      <View style={styles.headers}>
-        <Header />
-        <View style={styles.container}>
-          <GiftedChat 
-            messages = {this.state.messages}
-            onSend = {messages => this.onSend(messages)}
-            user={{
-              _id: 1
-            }}
-          />
+      <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss();}}>
+        <View style={styles.headers}>
+          <Header />
+          <View style={styles.container}>
+            <GiftedChat 
+              messages = {this.state.messages}
+              onSend = {messages => this.onSend(messages)}
+              user={{
+                _id: 1
+              }}
+            />
+          </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     )
   }
 }
