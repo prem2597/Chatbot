@@ -51,6 +51,7 @@
     "react-native-safe-area-context": "0.7.3",
     "react-native-screens": "~2.2.0",
     "react-native-smtp": "^1.0.1",
+    "react-native-typing-animation": "^0.1.7",
     "react-native-voice": "^0.3.0",
     "react-native-web": "~0.11.7"
   },
